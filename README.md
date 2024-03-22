@@ -2,6 +2,8 @@
 
 A mod to make testing a little easier. As Silica's UI is likely to undergo major changes don't expect features to work for too long. 
 
+![Custom GameMode](image.png)
+
 # Features
 
 - Custom GameModes: Automatically load in your own prefab when Sandbox is detected on a level change or add it to the UI
