@@ -3,7 +3,7 @@ using MelonLoader;
 using QAPI;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(QAPIMod), "QAPI", "0.0.1", "dodad")]
+[assembly: MelonInfo(typeof(QAPIMod), "QAPI", "0.0.2", "dodad")]
 [assembly: MelonGame("Bohemia Interactive", "Silica")]
 [assembly: MelonOptionalDependencies("QList")]
 [assembly: MelonPriority(-99)]
@@ -14,21 +14,21 @@ namespace QAPI;
 public class QAPIMod : MelonMod
 {
     #region Variables
-    internal static Transform ParentContainer
+    internal static Transform PersistentContainer
     {
         get
         {
-            if (parentContainer == null)
+            if (persistentContainer == null)
             {
-                parentContainer = new GameObject("QAPI Container").transform;
-                GameObject.DontDestroyOnLoad(ParentContainer.gameObject);
+                persistentContainer = new GameObject("QAPI Persistent Container").transform;
+                GameObject.DontDestroyOnLoad(PersistentContainer.gameObject);
             }
 
-            return parentContainer;
+            return persistentContainer;
         }
     }
 
-    private static Transform? parentContainer;
+    private static Transform? persistentContainer;
     #endregion
 
     #region Melon

@@ -1,6 +1,8 @@
 using HarmonyLib;
 using Il2Cpp;
+using Il2CppBehaviorDesigner.Runtime.Tasks.Unity.UnityGameObject;
 using Il2CppSilica.UI;
+using QAPI.Components;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -17,12 +19,21 @@ namespace QAPI
         {
             get { return currentGameMode; }
         }
+        internal static Dictionary<string, CustomGameModeInfo> CustomGameModes
+        {
+            get
+            {
+                References ??= References =
+                    QAPIMod.PersistentContainer.gameObject.AddComponent<GameModeReferences>();
 
-        private static Dictionary<string, CustomGameModeInfo> CustomGameModes = new();
+                return References.CustomGameModes;
+            }
+        }
         private static Action<string, GameModeInfo>? OnLevelEndLoadDelegate;
         private static Action<string, GameModeInfo>? OnLevelBeginLoadDelegate;
-        private static string? queuedGameMode;
+        private static GameModeReferences? References;
         private static GameObject? currentGameMode;
+        private static string? queuedGameMode;
         private static bool reinitializePlaystyleMenu = true;
         #endregion
 
@@ -69,8 +80,10 @@ namespace QAPI
             if (!ValidateInfo(info))
                 return false;
 
-            info.Object.transform.SetParent(QAPIMod.ParentContainer);
+            info.Object.transform.SetParent(QAPIMod.PersistentContainer);
             info.Object.SetActive(false);
+            info.InitializeImage(QAPIMod.PersistentContainer);
+
             CustomGameModes.Add(info.DisplayName, info);
 
             Log.LogOutput($"Registered new game mode '{info.DisplayName}'");
@@ -175,6 +188,7 @@ namespace QAPI
         // Destroy current GameMode on level change
         private static void OnLevelBeginLoad(string sceneName, GameModeInfo info)
         {
+            Log.LogOutput($"OnBeginlevelLoad");
             var oldScene = SceneManager.GetActiveScene().name.ToLower();
 
             if (oldScene.Contains("main") || oldScene.Contains("intro"))
@@ -182,13 +196,13 @@ namespace QAPI
 
             if (currentGameMode != null)
                 GameObject.Destroy(currentGameMode);
-
-            reinitializePlaystyleMenu = true;
         }
 
         // Load a requested GameMode if a map is loaded in sandbox mode
         private static void OnLevelEndLoad(string sceneName, GameModeInfo info)
         {
+            reinitializePlaystyleMenu = true;
+
             sceneName = sceneName.ToLower();
 
             if (
@@ -342,6 +356,21 @@ namespace QAPI
             /// Prefab to be instantiated on level load
             /// </summary>
             public GameObject? Object;
+
+            internal void InitializeImage(Transform parent)
+            {
+                if (DisplaySprite == null) // TODO use default image
+                    return;
+
+                var imageObject = new GameObject(
+                    "Custom GameMode Display Sprite"
+                ).AddComponent<Image>();
+
+                DisplaySprite = imageObject.sprite = GameObject.Instantiate(DisplaySprite);
+
+                imageObject.transform.SetParent(parent);
+                imageObject.gameObject.SetActive(false);
+            }
         }
         #endregion
     }

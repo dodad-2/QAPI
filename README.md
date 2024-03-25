@@ -59,6 +59,10 @@ QAPI.Resources.GetBundle(bundleKey);
 
 # Changelog
 
+**0.0.2**
+
+- Custom GameMode buttons are properly recreated after scene loads
+
 **0.0.1**
 
 - First release
